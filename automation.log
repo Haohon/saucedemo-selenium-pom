@@ -1,0 +1,17 @@
+2026-01-12 15:19:47 - INFO - Navigating to login with user: standard_user
+2026-01-12 15:19:47 - INFO - Credentials entered, clicking login button.
+2026-01-12 15:19:47 - INFO - Adding backpack to cart.
+2026-01-12 15:19:47 - INFO - Waiting for cart badge to update...
+2026-01-12 15:19:55 - INFO - Navigating to login with user: locked_out_user
+2026-01-12 15:19:55 - INFO - Credentials entered, clicking login button.
+2026-01-12 15:19:55 - WARNING - Login failed as expected. Error: Epic sadface: Sorry, this user has been locked out.
+2026-01-12 15:20:03 - INFO - Navigating to login with user: wrong_user
+2026-01-12 15:20:03 - INFO - Credentials entered, clicking login button.
+2026-01-12 15:20:03 - WARNING - Login failed as expected. Error: Epic sadface: Username and password do not match any user in this service
+2026-01-12 15:20:11 - INFO - Navigating to login with user: standard_user
+2026-01-12 15:20:11 - INFO - Credentials entered, clicking login button.
+2026-01-12 15:20:11 - INFO - Adding backpack to cart.
+2026-01-12 15:20:11 - INFO - Opening shopping cart.
+2026-01-12 15:20:11 - INFO - Proceeding to Checkout.
+2026-01-12 15:20:11 - INFO - Entering shipping details for: Haohon
+2026-01-12 15:20:14 - INFO - Finalizing order.

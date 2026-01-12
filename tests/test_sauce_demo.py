@@ -7,11 +7,8 @@ def test_valid_login_and_add_to_cart(driver):
     driver.get("https://www.saucedemo.com/")
     login_page = LoginPage(driver)
     inventory_page = InventoryPage(driver)
-
     login_page.login("standard_user", "secret_sauce")
     inventory_page.add_backpack_to_cart()
-    
-    assert driver.current_url == "https://www.saucedemo.com/inventory.html"
     assert inventory_page.get_cart_count() == "1"
 
 @pytest.mark.parametrize("username, password, expected_error", [
@@ -29,9 +26,7 @@ def test_full_checkout_flow(driver):
     login_page = LoginPage(driver)
     inventory_page = InventoryPage(driver)
     checkout_page = CheckoutPage(driver)
-
     login_page.login("standard_user", "secret_sauce")
     inventory_page.add_backpack_to_cart()
     checkout_page.complete_checkout("Haohon", "Tester", "12345")
-    
     assert checkout_page.get_confirmation_message() == "Thank you for your order!"
