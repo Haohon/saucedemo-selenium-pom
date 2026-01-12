@@ -1,4 +1,5 @@
 import pytest
+from pages.checkout_page import CheckoutPage # Add this import at the top
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
@@ -53,3 +54,21 @@ def driver():
     driver.implicitly_wait(5)
     yield driver
     driver.quit()
+
+def test_full_checkout_flow(driver):
+    driver.get("https://www.saucedemo.com/")
+    login_page = LoginPage(driver)
+    inventory_page = InventoryPage(driver)
+    checkout_page = CheckoutPage(driver)
+
+    # 1. Login
+    login_page.login("standard_user", "secret_sauce")
+
+    # 2. Add Item
+    inventory_page.add_backpack_to_cart()
+
+    # 3. Checkout
+    checkout_page.complete_checkout("Haohon", "Tester", "12345")
+
+    # 4. Assert
+    assert checkout_page.get_confirmation_message() == "Thank you for your order!"    
