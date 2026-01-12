@@ -2,29 +2,51 @@ name: Selenium CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    # Mapping GitHub Secrets to Environment Variables
+    env:
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+      BASE_URL: ${{ secrets.BASE_URL }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build the Docker image
-        run: docker build -t my-selenium-tests .
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-      - name: Run tests in Docker
-        # This runs pytest and creates the HTML report file
-        run: docker run --rm -v ${{ github.workspace }}:/app my-selenium-tests python -m pytest --html=report.html --self-contained-html
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install python-dotenv
+
+      - name: Run tests
+        # We run without -n (parallel) in CI by default to ensure maximum stability 
+        # but you can add -n 2 here if the GitHub runner is fast enough.
+        run: |
+          pytest --html=report.html --self-contained-html -rP
 
       - name: Upload Test Report
-        # This saves the 'report.html' so you can see it on GitHub
+        if: always()
         uses: actions/upload-artifact@v4
-        if: always() # This ensures the report is saved even if a test fails!
         with:
           name: selenium-test-report
           path: report.html
+
+      - name: Upload Automation Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: automation-logs
+          path: automation.log
