@@ -6,7 +6,6 @@ from selenium.webdriver.chrome.service import Service
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
 
-@pytest.fixture
 def driver():
     # This runs before every test
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
@@ -40,7 +39,6 @@ def test_invalid_login(driver):
     assert login_page.get_error_text() == expected_error
 
     
-@pytest.fixture
 def driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless") # Runs without a GUI
