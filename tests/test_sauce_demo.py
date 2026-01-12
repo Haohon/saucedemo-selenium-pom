@@ -1,57 +1,28 @@
 import pytest
-from pages.checkout_page import CheckoutPage # Add this import at the top
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
-
-def driver():
-    # This runs before every test
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-    driver.implicitly_wait(5)
-    yield driver
-    # This runs after every test
-    driver.quit()
+from pages.checkout_page import CheckoutPage
 
 def test_valid_login_and_add_to_cart(driver):
     driver.get("https://www.saucedemo.com/")
     login_page = LoginPage(driver)
     inventory_page = InventoryPage(driver)
 
-    # Action
     login_page.login("standard_user", "secret_sauce")
     inventory_page.add_backpack_to_cart()
-
-    # Assertion
+    
     assert driver.current_url == "https://www.saucedemo.com/inventory.html"
     assert inventory_page.get_cart_count() == "1"
 
-def test_invalid_login(driver):
+@pytest.mark.parametrize("username, password, expected_error", [
+    ("locked_out_user", "secret_sauce", "Epic sadface: Sorry, this user has been locked out."),
+    ("wrong_user", "secret_sauce", "Epic sadface: Username and password do not match any user in this service")
+])
+def test_invalid_login_scenarios(driver, username, password, expected_error):
     driver.get("https://www.saucedemo.com/")
     login_page = LoginPage(driver)
-
-    # Action: intentionally wrong password
-    login_page.login("standard_user", "wrong_password")
-
-    # Assertion: Verify error message appears
-    expected_error = "Epic sadface: Username and password do not match any user in this service"
-    assert login_page.get_error_text() == expected_error
-
-    
-def driver():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless") # Runs without a GUI
-    options.add_argument("--no-sandbox") # Required for Linux/Docker
-    options.add_argument("--disable-dev-shm-usage") # Overcomes resource limits
-    
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=options
-    )
-    driver.implicitly_wait(5)
-    yield driver
-    driver.quit()
+    login_page.login(username, password)
+    assert expected_error in login_page.get_error_message()
 
 def test_full_checkout_flow(driver):
     driver.get("https://www.saucedemo.com/")
@@ -59,14 +30,8 @@ def test_full_checkout_flow(driver):
     inventory_page = InventoryPage(driver)
     checkout_page = CheckoutPage(driver)
 
-    # 1. Login
     login_page.login("standard_user", "secret_sauce")
-
-    # 2. Add Item
     inventory_page.add_backpack_to_cart()
-
-    # 3. Checkout
     checkout_page.complete_checkout("Haohon", "Tester", "12345")
-
-    # 4. Assert
-    assert checkout_page.get_confirmation_message() == "Thank you for your order!"    
+    
+    assert checkout_page.get_confirmation_message() == "Thank you for your order!"

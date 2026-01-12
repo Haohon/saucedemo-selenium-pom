@@ -1,4 +1,5 @@
 import pytest
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,17 +16,17 @@ def driver():
     yield driver
     driver.quit()
 
-# This part captures the screenshot on failure
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     pytest_html = item.config.pluginmanager.getplugin("html")
     outcome = yield
     report = outcome.get_result()
-    extra = getattr(report, "extra", [])
+    extras = getattr(report, "extras", [])
 
     if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver")
-        if driver:
-            screenshot = driver.get_screenshot_as_base64()
-            extra.append(pytest_html.extras.image(screenshot, "Failure Screenshot"))
-        report.extra = extra
+        if pytest_html is not None:
+            driver = item.funcargs.get("driver")
+            if driver:
+                screenshot = driver.get_screenshot_as_base64()
+                extras.append(pytest_html.extras.image(screenshot, "Failure Screenshot"))
+        report.extras = extras
