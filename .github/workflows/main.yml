@@ -18,4 +18,13 @@ jobs:
         run: docker build -t my-selenium-tests .
 
       - name: Run tests in Docker
-        run: docker run --rm my-selenium-tests
+        # This runs pytest and creates the HTML report file
+        run: docker run --rm -v ${{ github.workspace }}:/app my-selenium-tests python -m pytest --html=report.html --self-contained-html
+
+      - name: Upload Test Report
+        # This saves the 'report.html' so you can see it on GitHub
+        uses: actions/upload-artifact@v4
+        if: always() # This ensures the report is saved even if a test fails!
+        with:
+          name: selenium-test-report
+          path: report.html
